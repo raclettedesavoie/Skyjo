@@ -22,9 +22,9 @@ public class Player
             {
                 DrawCardFromDrawPile(deckPile, numberCard);
             }
-            else
+            if(drawFromDiscardPile)
             {
-                DrawCardFromDiscardPile(discardPile);
+                DrawCardFromDiscardPile(discardPile, numberCard);
             }
 
         // Gérez d'autres actions du joueur, telles que jouer des cartes, échanger des cartes, etc.
@@ -39,23 +39,16 @@ public class Player
             hand.RemoveAt(numberCard-1);
             hand.Add(card);
         }
-        else
-        {
-            // Gérer le cas où la pioche est vide.
-        }
     }
 
-    private void DrawCardFromDiscardPile(List<Card> discardPile)
+    private void DrawCardFromDiscardPile(List<Card> discardPile, int numberCard)
     {
         if (discardPile.Count > 0)
         {
-            Card card = discardPile[discardPile.Count - 1];
-            discardPile.RemoveAt(discardPile.Count - 1);
+            Card card = discardPile[0];
+            discardPile.RemoveAt(0);
+            hand.RemoveAt(numberCard - 1);
             hand.Add(card);
-        }
-        else
-        {
-            // Gérer le cas où la défausse est vide.
         }
     }
 
