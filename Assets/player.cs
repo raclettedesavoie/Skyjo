@@ -12,6 +12,8 @@ public class Player
     public bool drawFromDrawPile = false;
     public bool drawFromDiscardPile = false;
 
+    public int numberCardRevealed = 0;
+
     public void InitialiseHand()
     {
         hand = new List<Card>();
@@ -37,7 +39,7 @@ public class Player
             Card card = deckPile[0];
             deckPile.RemoveAt(0);
             hand.RemoveAt(numberCard-1);
-            hand.Add(card);
+            hand.Insert(numberCard - 1, card);
         }
     }
 
@@ -45,17 +47,16 @@ public class Player
     {
         if (discardPile.Count > 0)
         {
-            Card card = discardPile[0];
-            discardPile.RemoveAt(0);
+            Card card = discardPile[discardPile.Count - 1];
+            discardPile.RemoveAt(discardPile.Count - 1);
             hand.RemoveAt(numberCard - 1);
-            hand.Add(card);
+            hand.Insert(numberCard - 1, card);
         }
     }
 
 
     public void CountPoints()
     {
-        points = 0;
 
         // Parcourez les cartes de la main du joueur et ajoutez les valeurs des cartes au total des points.
         foreach (Card card in hand)
@@ -65,23 +66,5 @@ public class Player
 
         // Gérez les règles spéciales, par exemple, si le joueur a dévoilé ou placé 3 cartes identiques dans une colonne.
         // Si cette règle s'applique, soustrayez le nombre de points approprié.
-    }
-
-    public void PiocheButtonClicked()
-    {
-        drawFromDrawPile = true;
-    }
-
-    public void DefausseButtonClicked()
-    {
-        drawFromDiscardPile = false;
-    }
-
-    public void DisplayPlayerCards()
-    {
-        foreach(Card card in hand)
-        {
-
-        }
     }
 }

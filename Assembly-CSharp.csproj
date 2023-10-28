@@ -60,10 +60,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\PlayerCardManager.cs" />
+    <Compile Include="Assets\WinnerPanel.cs" />
     <Compile Include="Assets\player.cs" />
     <Compile Include="Assets\GeneratePlayers.cs" />
     <Compile Include="Assets\DiscardPileManager.cs" />
     <Compile Include="Assets\PlayerCardsUI.cs" />
+    <Compile Include="Assets\WinnerText.cs" />
     <Compile Include="Assets\card.cs" />
     <Compile Include="Assets\MyGame.cs" />
   </ItemGroup>

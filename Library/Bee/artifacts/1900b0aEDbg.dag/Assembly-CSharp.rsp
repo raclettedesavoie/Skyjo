@@ -380,6 +380,8 @@
 "Assets/player.cs"
 "Assets/PlayerCardManager.cs"
 "Assets/PlayerCardsUI.cs"
+"Assets/WinnerPanel.cs"
+"Assets/WinnerText.cs"
 -langversion:9.0
 
 /deterministic

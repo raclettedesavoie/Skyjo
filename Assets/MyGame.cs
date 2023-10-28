@@ -8,66 +8,69 @@ using UnityEngine.UI;
 
 public class MyGame : MonoBehaviour
 {
-    public delegate void PlayerChooseCardDelegate(Player currentPlayer, int cardNumber, PlayerCards playerCards, PlayerCardManager[] playerCardManager);
+    public delegate void PlayerChooseCardDelegate(int cardNumber);
 
     public Button DeckButton;
     public List<Card> deckPile;
-    public Text deckValue;
-    public bool deckPileCanInteract = true;
+    public TextMeshProUGUI deckValue;
+    public bool deckPileCanInteract = false;
 
     public List<Card> discardPile = null;
     public Button discardButton;
     public DiscardPileManager discardPileManager;
 
+    public PlayerCards playerCards;
+    public PlayerCardManager[] playerCardsManager;
 
     public List<Player> players = new();
+    public Player currentPlayer;
     public List<Card> hand;
+    public int numberOfPlayer = 4;
     public int currentPlayerIndex = 0;
     public int points;
 
     public bool isGameOver = false;
+    public int playerLeftToPlay;
 
     public GeneratePlayers generatePlayers; 
+
+    public WinnerPanel winnerPanel; 
+    public WinnerText winnerText; 
 
     // Start is called before the first frame update
     void Start()
     {
+        deckPileCanInteract = false;
         InitPlayer();
-
+        currentPlayer = players[0];
+        playerLeftToPlay = players.Count;
         InitializeDeck();
         ShuffleDeck();
         DistributeCards();
         discardPile = new List<Card>();
         MoveThePileCardToTheDiscardPile();
-
+        PlayerRevealCardsAtStart();
     }
 
     // Update is called once per frame
     void Update()
     {
-        deckValue.text = "Nombre de carte :"+deckPile.Count.ToString();
-        IsGameOver();
-        if (!isGameOver)
+
+        deckValue.text = deckPile.Count.ToString() + " cartes";
+        if(deckPile.Count == 0)
         {
-           if(deckPile.Count == 0)
-            {
-                deckPile = discardPile;
-                discardPile = new List<Card>();
-                MoveThePileCardToTheDiscardPile();
-                ShuffleDeck();
-            }
-        }
-        else
-        {
-            Debug.Log("La partie est terminée.");
-            CalculateScores();
-            AnnounceWinner();
+            deckPile = discardPile;
+            discardPile = new List<Card>();
+            MoveThePileCardToTheDiscardPile();
+            ShuffleDeck();
         }
     }
     void InitPlayer()
     {
-        Player player = new();
-        players.Add(player);
+        for (int i = 0; i < numberOfPlayer; i++)
+        {
+            players.Add(new());
+        }
     }
     void InitializeDeck()
     {
@@ -85,68 +88,96 @@ public class MyGame : MonoBehaviour
 
     }
 
+    public void PlayerRevealCardsAtStart()
+    {
+        currentPlayer = players[currentPlayerIndex  % players.Count];
+        currentPlayer.numberCardRevealed++;
+        playerCards = generatePlayers.GetPlayerCards(currentPlayerIndex % players.Count);
+        playerCardsManager = generatePlayers.GetPlayerCardManagers(currentPlayerIndex % players.Count);
+        PlayerChooseCardDelegate playerChooseCard = RevealCardAtStart;
+        ActivatePlayerCard(playerChooseCard);
+    }
+
+    public void RevealCardAtStart(int numberCard)
+    {
+        playerCards.SetCardImage(numberCard, currentPlayer.hand[numberCard-1].value);
+
+        NextPlayerAtStart();
+        IsGameOver();
+    }
+    void NextPlayerAtStart()
+    {
+        DisableInteractCard();
+        currentPlayerIndex = (currentPlayerIndex + 1) ;
+        if(currentPlayerIndex < players.Count*2)
+        {
+            PlayerRevealCardsAtStart();
+        }
+        else {
+            currentPlayerIndex = 0;
+            deckPileCanInteract = true;
+        }
+    }
     public void DrawDiscardPile()
     {
         //Player choose to pick a card from the discard pile
         if (discardPile.Count > 0 && deckPileCanInteract == true)
         {
             deckPileCanInteract = false;
-            Player currentPlayer = players[currentPlayerIndex];
-            var playerCards = generatePlayers.GetPlayerCards(currentPlayerIndex);
-            var playerCardsManager = generatePlayers.GetPlayerCardManagers(currentPlayerIndex);
+            currentPlayer = players[currentPlayerIndex];
+            playerCards = generatePlayers.GetPlayerCards(currentPlayerIndex);
+            playerCardsManager = generatePlayers.GetPlayerCardManagers(currentPlayerIndex);
 
-            PlayerChooseCardDelegate playerChooseCardFromDraw = PlayerChoseCardFromDraw;
-            ActivatePlayerCard(playerCardsManager, playerCards, currentPlayer, PlayerChoseCardFromDraw);
+            PlayerChooseCardDelegate playerChooseCardFromDraw = PlayerChoseCardFromDiscard;
+            ActivatePlayerCard(PlayerChoseCardFromDiscard);
         }
     }
 
     public void DrawDeckPile()
     {
-        if (deckPile.Count > 0 && deckPileCanInteract)
+        currentPlayer = players[currentPlayerIndex % players.Count];
+        if (deckPile.Count > 0 && deckPileCanInteract && currentPlayer.numberCardRevealed != 12)
         {
-        deckPileCanInteract = false;
-        DeckButton.image.sprite = SetCardImage(deckPile[0].value);
+            deckPileCanInteract = false;
+            DeckButton.image.sprite = SetCardImage(deckPile[0].value);
 
-            Player currentPlayer = players[currentPlayerIndex];
-        var playerCards = generatePlayers.GetPlayerCards(currentPlayerIndex);
-        var playerCardsManager = generatePlayers.GetPlayerCardManagers(currentPlayerIndex);
+            playerCards = generatePlayers.GetPlayerCards(currentPlayerIndex);
+            playerCardsManager = generatePlayers.GetPlayerCardManagers(currentPlayerIndex);
 
-        //Player choose to not pick a card
-        //TODO vérifier que le n'a pas toutes ses carte retournés !
-        PlayerChooseCardDelegate playerChooseCardAfterPickDraw = PlayerChooseCardAfterPickDraw;
-        discardPileManager.interactAfterDrawDeckPile = true;
-        discardPileManager.OnInteractAfterDrawDeckPile.AddListener(()=>PlayerChooseDraw(playerCardsManager, playerCards, currentPlayer, playerChooseCardAfterPickDraw));
+            //Player choose to not pick a card
+            PlayerChooseCardDelegate playerRevealCard = PlayerRevealCard;
+            discardPileManager.interactAfterDrawDeckPile = true;
+            discardPileManager.OnInteractAfterDrawDeckPile.AddListener(()=>PlayerChooseDraw(playerRevealCard));
 
-        //Player choose to pick card from the deck
-        PlayerChooseCardDelegate playerChooseCard = PlayerChooseCard;
-        ActivatePlayerCard(playerCardsManager, playerCards,currentPlayer, playerChooseCard);
+            //Player choose to pick card from the deck
+            PlayerChooseCardDelegate playerChooseCard = PlayerChooseCardFromDeck;
+            ActivatePlayerCard(playerChooseCard);
         }
 
     }
-
-    public void PlayerChooseDraw(PlayerCardManager[] playerCardsManager, PlayerCards playerCards, Player currentPlayer, PlayerChooseCardDelegate del )
+    public void PlayerChooseDraw(PlayerChooseCardDelegate del )
     {
         
         MoveThePileCardToTheDiscardPile();
 
-        DisableInteractCard(playerCardsManager);
-        ActivatePlayerCard(playerCardsManager, playerCards, currentPlayer, del);
+        DisableInteractCard();
+        ActivatePlayerCard(del);
         DisableInteractDiscardPile();
     }
 
-    public void ActivatePlayerCard(PlayerCardManager[] playerCardsManager,PlayerCards playerCards, Player currentPlayer, PlayerChooseCardDelegate del)
+    public void ActivatePlayerCard( PlayerChooseCardDelegate del)
     {
         for (int i = 0; i < playerCardsManager.Length; i++)
         {
             playerCardsManager[i].canInteract = true;
             int cardNumber = playerCardsManager[i].numberCard;
             playerCardsManager[i].OnInteracted.AddListener(() => {
-                del(currentPlayer, cardNumber, playerCards, playerCardsManager);
+                del( cardNumber);
             });
         }
     }
 
-    public void DisableInteractCard(PlayerCardManager[] playerCardsManager)
+    public void DisableInteractCard()
     {
         for (int i = 0; i < playerCardsManager.Length; i++)
         {
@@ -160,9 +191,14 @@ public class MyGame : MonoBehaviour
         discardPileManager.OnInteractAfterDrawDeckPile.RemoveAllListeners();
     }
 
-    public void PlayerChooseCard(Player currentPlayer,int numberCard,PlayerCards playerCards, PlayerCardManager[] playerCardsManager)
+    public void PlayerChooseCardFromDeck(int numberCard)
     {
         currentPlayer.drawFromDrawPile = true;
+        CheckIfCardIsAlreadyRevealed(numberCard);
+        if (currentPlayer.numberCardRevealed == 12 )
+        {
+            isGameOver = true;
+        }
 
         playerCards.SetCardImage(numberCard, deckPile[0].value);
 
@@ -170,13 +206,19 @@ public class MyGame : MonoBehaviour
 
         DeckButton.image.sprite = Resources.Load<Sprite>("BackCard");
 
-        NextPlayer(playerCardsManager);
+        NextPlayer();
+        IsGameOver();
     }
-    public void PlayerChoseCardFromDraw(Player currentPlayer, int numberCard, PlayerCards playerCards, PlayerCardManager[] playerCardsManager)
+    public void PlayerChoseCardFromDiscard( int numberCard)
     {
         currentPlayer.drawFromDiscardPile = true;
+        CheckIfCardIsAlreadyRevealed(numberCard);
+        if (currentPlayer.numberCardRevealed == 12)
+        {
+            isGameOver = true;
+        }
 
-        playerCards.SetCardImage(numberCard, discardPile[0].value);
+        playerCards.SetCardImage(numberCard, discardPile[discardPile.Count - 1].value);
 
         currentPlayer.ExecutePlayerTurn(deckPile, discardPile, numberCard);
 
@@ -186,18 +228,28 @@ public class MyGame : MonoBehaviour
         }
         else
         {
-            discardButton.image.sprite = null;
+            discardButton.image.color = new Color(1f, 1f, 1f, 0f);
         }
 
-        NextPlayer(playerCardsManager);
+        NextPlayer();
+        IsGameOver();
     }
-    public void PlayerChooseCardAfterPickDraw(Player currentPlayer, int numberCard, PlayerCards playerCards, PlayerCardManager[] playerCardsManager)
+    public void CheckIfCardIsAlreadyRevealed(int numberCard)
     {
-        //TODO gérer le cas ou la pile est vide
-        playerCards.SetCardImage(numberCard, numberCard);
+        if (playerCards.cardImages[numberCard-1].sprite.name == "BackCard")
+        {
+            currentPlayer.numberCardRevealed++;
+        }
+    } 
+    public void PlayerRevealCard(int numberCard)
+    {
+        currentPlayer.numberCardRevealed++;
+        playerCards.SetCardImage(numberCard, currentPlayer.hand[numberCard-1].value);
 
-        NextPlayer(playerCardsManager);
+        NextPlayer();
+        IsGameOver();
     }
+
 
     void AddCardsToDeck(List<Card> cardList, int value, int count)
     {
@@ -224,7 +276,7 @@ public class MyGame : MonoBehaviour
 
     void DistributeCards()
     {
-        int cardsToDistribute = 12; // Le nombre de cartes à distribuer à chaque joueur.
+        int cardsToDistribute = 12; 
 
         foreach (Player player in players)
         {
@@ -232,62 +284,70 @@ public class MyGame : MonoBehaviour
             {
                 if (deckPile.Count > 0)
                 {
-                    Card card = deckPile[deckPile.Count - 1]; // Prenez la carte du dessus du deck.
-                    deckPile.RemoveAt(deckPile.Count - 1); // Retirez la carte du deck.
-                    player.hand.Add(card); // Ajoutez la carte à la main du joueur.
-                }
-                else
-                {
-                    // Gérez le cas où le deck est vide (si le deck devait être épuisé dans votre jeu).
+                    Card card = deckPile[0]; 
+                    deckPile.RemoveAt(0); 
+                    player.hand.Add(card); 
                 }
             }
         }
     }
 
-    void IsGameOver()
+    public void IsGameOver()
     {
-        foreach (Player player in players)
+        if (isGameOver)
         {
-            if (player.hand.Count == 0)
-            {
-                // Si la main d'un joueur est vide, cela signifie qu'il a dévoilé sa dernière carte.
-                isGameOver= true; // La partie est terminée.
-            }
+            playerLeftToPlay--;
         }
-
-        isGameOver= false; // La partie n'est pas encore terminée.
+        if (playerLeftToPlay == 0)
+        {
+            GameOver();
+        }
+    }
+    void GameOver()
+    {
+        CalculateScores();
+        AnnounceWinner();
     }
 
-    void NextPlayer(PlayerCardManager[] playerCardsManager)
+    void NextPlayer()
     {
         upadateDeckCount();
-        DisableInteractCard(playerCardsManager);
+        DisableInteractCard();
         DisableInteractDiscardPile();
         deckPileCanInteract = true;
-        // Passez au joueur suivant.
-        /*currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;*/
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
     }
 
     void CalculateScores()
     {
+            int j = -1;
         foreach (Player player in players)
         {
-            player.CountPoints(); // Vous devrez implémenter cette méthode dans la classe Player.
+            j++;
+            for(int i = 0; i < 12; i++)
+            {
+                var playerCards = generatePlayers.GetPlayerCards(j);
+                playerCards.SetCardImage(i+1, player.hand[i].value);
+            }
+            player.CountPoints(); 
         }
     }
 
     void AnnounceWinner()
     {
         Player winner = players[0];
-        foreach (Player player in players)
+        var winnerName = 0;
+        for (int i = 0; i < players.Count; i++)
         {
-            if (player.points < winner.points)
+            if (players[i].points < winner.points)
             {
-                winner = player;
+                winnerName = i+1;
+                winner = players[i];
             }
         }
 
-        Debug.Log("Le gagnant est le joueur  avec " + winner.points + " points.");
+        winnerPanel.AnnounceWinner();
+        winnerText.AnnounceWinner(winnerName.ToString(),winner.points.ToString());
     }
 
     Sprite SetCardImage(int cardValue)
@@ -297,12 +357,16 @@ public class MyGame : MonoBehaviour
 
     private void upadateDeckCount()
     {
-        deckValue.text = "Nombre de carte :" + deckPile.Count.ToString();
+        deckValue.text = deckPile.Count.ToString() + " cartes";
     }
 
     public void MoveThePileCardToTheDiscardPile()
     {
         DeckButton.image.sprite = Resources.Load<Sprite>("BackCard");
+        if(discardPile.Count==0)
+        {
+            discardButton.image.color = new Color(1f, 1f, 1f, 1f);
+        }
         discardButton.image.sprite = SetCardImage(deckPile[0].value);
         discardPile.Add(deckPile[0]);
         deckPile.RemoveAt(0);

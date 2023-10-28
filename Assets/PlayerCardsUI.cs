@@ -1,11 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerCards : MonoBehaviour
 {
     public Image[] cardImages ;
+    public List<Card> cardsValue ;
+    public int numberPlayer;
+    public TextMeshProUGUI playerName;
     // Start is called before the first frame update
     void Start()
     {
