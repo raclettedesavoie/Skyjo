@@ -14,5 +14,9 @@ public class PlayerCardManager : MonoBehaviour
         {
             OnInteracted.Invoke();
         }
+
+    }
+    public void DisableGameObject(){
+        this.gameObject.SetActive(false);
     }
 }

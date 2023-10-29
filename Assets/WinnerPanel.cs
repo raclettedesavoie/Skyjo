@@ -7,18 +7,15 @@ using UnityEngine.UI;
 
 public class WinnerPanel : MonoBehaviour
 {
-    public Canvas canvas;
-    public Image panelWinner;
-    // Start is called before the first frame update
     void Start()
     {
-        canvas.sortingOrder = 998;
-        panelWinner.gameObject.SetActive(false);
-        panelWinner.color = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+        gameObject.SetActive(false);
+
     }
 
-    public void AnnounceWinner()
+    public void AnnounceWinner(string winnerText )
     {
-        panelWinner.gameObject.SetActive(true);
+        gameObject.SetActive(true);
+        GetComponentInChildren<TextMeshProUGUI>().text = winnerText;
     }
 }

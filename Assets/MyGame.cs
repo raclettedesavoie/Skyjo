@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using TMPro;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -35,8 +37,13 @@ public class MyGame : MonoBehaviour
     public GeneratePlayers generatePlayers; 
 
     public WinnerPanel winnerPanel; 
-    public WinnerText winnerText; 
 
+    public PlayerTurn playerTurn;
+    public PlayerTurnText playerTurnText;
+
+    private float timeSinceLastAction = 0f;
+    public bool deckPileInteracted = false;
+    public bool actionWasMade = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -50,6 +57,9 @@ public class MyGame : MonoBehaviour
         discardPile = new List<Card>();
         MoveThePileCardToTheDiscardPile();
         PlayerRevealCardsAtStart();
+        playerTurnText.SetText("Player " + (currentPlayerIndex % players.Count + 1) + "'s turn \n Choose two cards to reveal");
+        StartCoroutine(playerTurn.ActivatePlayerTurn());
+
     }
 
     // Update is called once per frame
@@ -64,6 +74,34 @@ public class MyGame : MonoBehaviour
             MoveThePileCardToTheDiscardPile();
             ShuffleDeck();
         }
+       /* if (actionWasMade)
+        {
+            timeSinceLastAction = 0f;
+            actionWasMade = false;
+        }
+        else
+        {
+            timeSinceLastAction += Time.deltaTime;
+
+            if (timeSinceLastAction >= 10f)
+            {
+                actionWasMade = true;
+                if(deckPileCanInteract == true)
+                {
+                    StartCoroutine(StartDisplayHelpAfterDelay(null, discardButton.image));
+                    StartCoroutine(StartDisplayHelpAfterDelay(null, DeckButton.image));
+                }
+                else if(deckPileInteracted == true)
+                {
+                    StartCoroutine(StartDisplayHelpAfterDelay(playerCards.cardImages));
+                    StartCoroutine(StartDisplayHelpAfterDelay(null, discardButton.image)); ;
+                }
+                else
+                {
+                    StartCoroutine(StartDisplayHelpAfterDelay(playerCards.cardImages));
+                }
+            }
+        }*/
     }
     void InitPlayer()
     {
@@ -75,8 +113,6 @@ public class MyGame : MonoBehaviour
     void InitializeDeck()
     {
         deckPile = new List<Card>();
-
-        // Ajoutez 150 cartes à votre deck en respectant les quantités et les valeurs spécifiées.
 
         AddCardsToDeck(deckPile, -2, 5);
         AddCardsToDeck(deckPile, -1, 10);
@@ -90,33 +126,42 @@ public class MyGame : MonoBehaviour
 
     public void PlayerRevealCardsAtStart()
     {
+
         currentPlayer = players[currentPlayerIndex  % players.Count];
-        currentPlayer.numberCardRevealed++;
         playerCards = generatePlayers.GetPlayerCards(currentPlayerIndex % players.Count);
         playerCardsManager = generatePlayers.GetPlayerCardManagers(currentPlayerIndex % players.Count);
+
         PlayerChooseCardDelegate playerChooseCard = RevealCardAtStart;
         ActivatePlayerCard(playerChooseCard);
     }
 
     public void RevealCardAtStart(int numberCard)
     {
+        actionWasMade = true;
         playerCards.SetCardImage(numberCard, currentPlayer.hand[numberCard-1].value);
-
+        currentPlayer.hand[numberCard - 1].cardRevealed = true;
         NextPlayerAtStart();
         IsGameOver();
     }
     void NextPlayerAtStart()
     {
         DisableInteractCard();
+
         currentPlayerIndex = (currentPlayerIndex + 1) ;
         if(currentPlayerIndex < players.Count*2)
         {
             PlayerRevealCardsAtStart();
+            playerTurnText.SetText("Player " + (currentPlayerIndex % players.Count + 1) + "'s turn \n Choose two cards to reveal");
         }
         else {
             currentPlayerIndex = 0;
             deckPileCanInteract = true;
+            playerTurnText.SetText("Player " + (currentPlayerIndex % players.Count + 1) + "'s turn ");
         }
+
+        actionWasMade = false;
+
+        StartCoroutine(playerTurn.ActivatePlayerTurn());
     }
     public void DrawDiscardPile()
     {
@@ -136,9 +181,10 @@ public class MyGame : MonoBehaviour
     public void DrawDeckPile()
     {
         currentPlayer = players[currentPlayerIndex % players.Count];
-        if (deckPile.Count > 0 && deckPileCanInteract && currentPlayer.numberCardRevealed != 12)
+        if (deckPile.Count > 0 && deckPileCanInteract && currentPlayer.hand.Where(card => card.cardRevealed).Count() != 12)
         {
             deckPileCanInteract = false;
+            deckPileInteracted = true;
             DeckButton.image.sprite = SetCardImage(deckPile[0].value);
 
             playerCards = generatePlayers.GetPlayerCards(currentPlayerIndex);
@@ -157,7 +203,6 @@ public class MyGame : MonoBehaviour
     }
     public void PlayerChooseDraw(PlayerChooseCardDelegate del )
     {
-        
         MoveThePileCardToTheDiscardPile();
 
         DisableInteractCard();
@@ -193,9 +238,10 @@ public class MyGame : MonoBehaviour
 
     public void PlayerChooseCardFromDeck(int numberCard)
     {
+        actionWasMade = true;
         currentPlayer.drawFromDrawPile = true;
         CheckIfCardIsAlreadyRevealed(numberCard);
-        if (currentPlayer.numberCardRevealed == 12 )
+        if (currentPlayer.hand.Where(card=>card.cardRevealed).Count() > 1 )
         {
             isGameOver = true;
         }
@@ -209,16 +255,17 @@ public class MyGame : MonoBehaviour
         NextPlayer();
         IsGameOver();
     }
-    public void PlayerChoseCardFromDiscard( int numberCard)
+    public void PlayerChoseCardFromDiscard(int numberCard)
     {
+        actionWasMade = true;
         currentPlayer.drawFromDiscardPile = true;
         CheckIfCardIsAlreadyRevealed(numberCard);
-        if (currentPlayer.numberCardRevealed == 12)
+        if (currentPlayer.hand.Where(card => card.cardRevealed).Count() == 12 )
         {
             isGameOver = true;
         }
 
-        playerCards.SetCardImage(numberCard, discardPile[discardPile.Count - 1].value);
+        playerCards.SetCardImage(numberCard, discardPile[0].value);
 
         currentPlayer.ExecutePlayerTurn(deckPile, discardPile, numberCard);
 
@@ -236,18 +283,21 @@ public class MyGame : MonoBehaviour
     }
     public void CheckIfCardIsAlreadyRevealed(int numberCard)
     {
-        if (playerCards.cardImages[numberCard-1].sprite.name == "BackCard")
+        if (currentPlayer.hand[numberCard-1].cardRevealed == false)
         {
-            currentPlayer.numberCardRevealed++;
+            currentPlayer.hand[numberCard-1].cardRevealed = true;
         }
     } 
     public void PlayerRevealCard(int numberCard)
     {
-        currentPlayer.numberCardRevealed++;
-        playerCards.SetCardImage(numberCard, currentPlayer.hand[numberCard-1].value);
-
-        NextPlayer();
-        IsGameOver();
+        actionWasMade = true;
+        if (currentPlayer.hand[numberCard - 1].cardRevealed == false)
+        {
+            CheckIfCardIsAlreadyRevealed(numberCard);
+            playerCards.SetCardImage(numberCard, currentPlayer.hand[numberCard-1].value);
+            NextPlayer();
+            IsGameOver();
+        }
     }
 
 
@@ -285,7 +335,7 @@ public class MyGame : MonoBehaviour
                 if (deckPile.Count > 0)
                 {
                     Card card = deckPile[0]; 
-                    deckPile.RemoveAt(0); 
+                    deckPile.RemoveAt(0);
                     player.hand.Add(card); 
                 }
             }
@@ -311,53 +361,22 @@ public class MyGame : MonoBehaviour
 
     void NextPlayer()
     {
-        upadateDeckCount();
+        //display Help If needed
+        actionWasMade = false;
+        deckPileInteracted = false;
+        deckValue.text = deckPile.Count.ToString() + " cartes";
+        CheckIdenticalColumnManager();
         DisableInteractCard();
         DisableInteractDiscardPile();
         deckPileCanInteract = true;
         currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
-    }
-
-    void CalculateScores()
-    {
-            int j = -1;
-        foreach (Player player in players)
-        {
-            j++;
-            for(int i = 0; i < 12; i++)
-            {
-                var playerCards = generatePlayers.GetPlayerCards(j);
-                playerCards.SetCardImage(i+1, player.hand[i].value);
-            }
-            player.CountPoints(); 
-        }
-    }
-
-    void AnnounceWinner()
-    {
-        Player winner = players[0];
-        var winnerName = 0;
-        for (int i = 0; i < players.Count; i++)
-        {
-            if (players[i].points < winner.points)
-            {
-                winnerName = i+1;
-                winner = players[i];
-            }
-        }
-
-        winnerPanel.AnnounceWinner();
-        winnerText.AnnounceWinner(winnerName.ToString(),winner.points.ToString());
+        playerTurnText.SetText("Player " + (currentPlayerIndex + 1) + "'s turn");
+        StartCoroutine(playerTurn.ActivatePlayerTurn());
     }
 
     Sprite SetCardImage(int cardValue)
     {
         return Resources.Load<Sprite>($"{cardValue}");
-    }
-
-    private void upadateDeckCount()
-    {
-        deckValue.text = deckPile.Count.ToString() + " cartes";
     }
 
     public void MoveThePileCardToTheDiscardPile()
@@ -370,5 +389,112 @@ public class MyGame : MonoBehaviour
         discardButton.image.sprite = SetCardImage(deckPile[0].value);
         discardPile.Add(deckPile[0]);
         deckPile.RemoveAt(0);
+    }
+
+    public void CheckIdenticalColumnManager()
+    {
+        for (int i = 0; i < 4; i++){
+            var allCardsMatch = true;
+            var cards = new List<Card> { currentPlayer.hand[i], currentPlayer.hand[i + 4], currentPlayer.hand[i + 8] };
+            for (int j = 0; j < cards.Count; j++)
+            {
+                if (!cards[j].cardRevealed || cards[j].value != cards[0].value)
+                {
+                    allCardsMatch = false;
+                    break;
+                }
+            }
+            if(allCardsMatch)
+            {
+                currentPlayer.RemoveCardFromHand(i);
+                playerCards.RemoveCardFromScene(i);
+                playerCardsManager[i].DisableGameObject();
+                playerCardsManager[i+4].DisableGameObject();
+                playerCardsManager[i+8].DisableGameObject();
+            }
+        }
+    }
+    void CalculateScores()
+    {
+        int j = -1;
+        foreach (Player player in players)
+        {
+            j++;
+            for (int i = 0; i < 12; i++)
+            {
+                var playerCards = generatePlayers.GetPlayerCards(j);
+                playerCards.SetCardImage(i + 1, player.hand[i].value);
+            }
+            player.CountPoints();
+        }
+    }
+
+    void AnnounceWinner()
+    {
+        Player winner = players[0];
+        var winnerName = 1;
+        for (int i = 0; i < players.Count; i++)
+        {
+            if (players[i].points < winner.points)
+            {
+                winnerName = i + 1;
+                winner = players[i];
+            }
+        }
+
+        winnerPanel.AnnounceWinner("Le gagnant est le joueur " + winnerName + " avec " + winner.points + " points.");
+    }
+
+
+    private IEnumerator InvokeScaleImageWithDelay(Image image, float delay)
+    {
+        yield return new WaitForSeconds(delay); // Délai de 2 secondes.
+        if (!actionWasMade)
+        {
+            StartCoroutine(ScaleImageEffect(image));
+        }
+    }
+    private IEnumerator ScaleImageEffect(Image image)
+    {
+        var originalScale = image.transform.localScale;
+        // Agrandir l'image
+        float timer = 0f;
+
+            while (timer < 1)
+            {
+                timer += Time.deltaTime;
+                float scale = Mathf.Lerp(1, 1.1f, timer / 1); // Agrandir à 1.5x la taille d'origine
+                image.transform.localScale = originalScale * scale;
+                yield return null;
+            }
+
+            // Réduire l'image
+            timer = 0f;
+            while (timer < 1)
+            {
+                timer += Time.deltaTime;
+                float scale = Mathf.Lerp(1.1f, 1, timer / 1); // Réduire à la taille d'origine
+                image.transform.localScale = originalScale * scale;
+                yield return null;
+            }
+
+        yield return new WaitForSeconds(2f);
+    }
+
+    IEnumerator StartDisplayHelpAfterDelay(Image[] images=null, Image image=null)
+    {
+        yield return new WaitForSeconds(2f);
+        if (images != null)
+        {
+            foreach (Image i in images)
+            {
+                StartCoroutine(ScaleImageEffect(i));
+            }
+        }
+        if (image != null)
+        {
+            StartCoroutine(ScaleImageEffect(image));
+        }
+        
     }
 }

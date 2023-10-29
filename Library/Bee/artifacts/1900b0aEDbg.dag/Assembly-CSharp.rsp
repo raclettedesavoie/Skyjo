@@ -373,6 +373,7 @@
 -r:"Library/Bee/artifacts/1900b0aEDbg.dag/UnityEngine.UI.ref.dll"
 -analyzer:"D:/Unity/2022.3.11f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.Properties.SourceGenerator.dll"
 -analyzer:"D:/Unity/2022.3.11f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
+"Assets/AnimationBehavior.cs"
 "Assets/card.cs"
 "Assets/DiscardPileManager.cs"
 "Assets/GeneratePlayers.cs"
@@ -380,8 +381,9 @@
 "Assets/player.cs"
 "Assets/PlayerCardManager.cs"
 "Assets/PlayerCardsUI.cs"
+"Assets/PlayerTurn/PlayerTurn.cs"
+"Assets/PlayerTurn/PlayerTurnText.cs"
 "Assets/WinnerPanel.cs"
-"Assets/WinnerText.cs"
 -langversion:9.0
 
 /deterministic

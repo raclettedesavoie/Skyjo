@@ -12,8 +12,6 @@ public class Player
     public bool drawFromDrawPile = false;
     public bool drawFromDiscardPile = false;
 
-    public int numberCardRevealed = 0;
-
     public void InitialiseHand()
     {
         hand = new List<Card>();
@@ -38,9 +36,9 @@ public class Player
         {
             Card card = deckPile[0];
             deckPile.RemoveAt(0);
-            hand.RemoveAt(numberCard-1);
-            hand.Insert(numberCard - 1, card);
+            hand[numberCard - 1].value = card.value;
         }
+        drawFromDrawPile = false;
     }
 
     private void DrawCardFromDiscardPile(List<Card> discardPile, int numberCard)
@@ -49,9 +47,9 @@ public class Player
         {
             Card card = discardPile[discardPile.Count - 1];
             discardPile.RemoveAt(discardPile.Count - 1);
-            hand.RemoveAt(numberCard - 1);
-            hand.Insert(numberCard - 1, card);
+            hand[numberCard - 1].value = card.value;
         }
+        drawFromDiscardPile= false;
     }
 
 
@@ -64,7 +62,12 @@ public class Player
             points += card.value;
         }
 
-        // Gérez les règles spéciales, par exemple, si le joueur a dévoilé ou placé 3 cartes identiques dans une colonne.
-        // Si cette règle s'applique, soustrayez le nombre de points approprié.
+    }
+
+    public void RemoveCardFromHand(int numberColumn)
+    {
+        hand[numberColumn+8].value=0;
+        hand[numberColumn+4].value=0;
+        hand[numberColumn].value=0;
     }
 }

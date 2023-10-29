@@ -34,4 +34,11 @@ public class PlayerCards : MonoBehaviour
     {
         cardImages[cardNumber-1].sprite = Resources.Load<Sprite>($"{deckValue}");
     }
+
+    public void RemoveCardFromScene(int numberColumn)
+    {
+        cardImages[numberColumn].color = new Color(0,0,0,0);
+        cardImages[numberColumn+4].color = new Color(0,0,0,0);
+        cardImages[numberColumn+8].color = new Color(0,0,0,0);
+    }
 }
