@@ -377,6 +377,8 @@
 "Assets/card.cs"
 "Assets/DiscardPileManager.cs"
 "Assets/GeneratePlayers.cs"
+"Assets/Helper/CardPositionHelper.cs"
+"Assets/MenuStartPanel.cs"
 "Assets/MyGame.cs"
 "Assets/player.cs"
 "Assets/PlayerCardManager.cs"

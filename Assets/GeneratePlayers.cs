@@ -7,40 +7,46 @@ using UnityEngine.UI;
 
 public class GeneratePlayers : MonoBehaviour
 {
-    public GameObject playerCardPrefab; // Le prefab représentant une carte de joueur
-    public int numberOfPlayersToGenerate = 4; // Nombre de cartes de joueur à générer
+    public GameObject playerCardPrefab; 
+    public GameObject myGamePrefab;
+    public GameObject mygame;
+    public int numberOfPlayersToGenerate ; 
     public Canvas canvas;
-
     public List<GameObject> playerCards;
+    public WinnerPanel winnerPanel;
 
+    public PlayerTurn playerTurn;
+    public PlayerTurnText playerTurnText;
 
-    void Start()
+    public Vector3[] playerPosition;
+    public float scaleFactor;
+
+    public void GeneratePlayerCards(int numberOfPlayers)
     {
         playerCards = new List<GameObject>();
-        GeneratePlayerCards();
-    }
-
-    void GeneratePlayerCards()
-    {
-        Vector3[] spawnPoints = new Vector3[]
-        {
-            new Vector3(0f, -425f, 0f),
-            new Vector3(-687f, 0f, 0f),
-            new Vector3(0f, 425f, 0f),
-            new Vector3(687f, 0f, 0f)
-        };
+        numberOfPlayersToGenerate = numberOfPlayers;
+        CardPositionHelper.GetPositionHelper(numberOfPlayersToGenerate,out playerPosition,out scaleFactor);
 
         for (int i = 0; i < numberOfPlayersToGenerate; i++)
         {
             playerCards.Add(Instantiate(playerCardPrefab, canvas.transform));
-            playerCards[i].transform.position = spawnPoints[i];
+            playerCards[i].transform.position = playerPosition[i];
             TextMeshProUGUI textMeshPro = playerCards[i].GetComponentInChildren<TextMeshProUGUI>();
             textMeshPro.text = "Player " + (i + 1);
 
             Vector3 currentScale = playerCards[i].transform.localScale;
-            float scaleFactor = 0.9f; 
             Vector3 newScale = new Vector3(currentScale.x * scaleFactor, currentScale.y * scaleFactor, currentScale.z * scaleFactor);
             playerCards[i].transform.localScale = newScale;
+        }
+        mygame = Instantiate(myGamePrefab, canvas.transform);
+        MyGame myGameComponent = mygame.GetComponent<MyGame>(); // Remplacez MyGameScript par le nom réel de votre script.
+        if (myGameComponent != null)
+        {
+            myGameComponent.generatePlayers =this;
+            myGameComponent.winnerPanel =winnerPanel;
+            myGameComponent.playerTurn =playerTurn;
+            myGameComponent.playerTurnText = playerTurnText;
+            myGameComponent.InitGame(numberOfPlayersToGenerate);
         }
     }
 
@@ -70,4 +76,5 @@ public class GeneratePlayers : MonoBehaviour
     {
         return playerCards[playerIndex].GetComponent<PlayerCards>();
     }
+
 }

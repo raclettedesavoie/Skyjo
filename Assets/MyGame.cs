@@ -27,7 +27,7 @@ public class MyGame : MonoBehaviour
     public List<Player> players = new();
     public Player currentPlayer;
     public List<Card> hand;
-    public int numberOfPlayer = 4;
+    public int numberOfPlayers;
     public int currentPlayerIndex = 0;
     public int points;
 
@@ -44,9 +44,12 @@ public class MyGame : MonoBehaviour
     private float timeSinceLastAction = 0f;
     public bool deckPileInteracted = false;
     public bool actionWasMade = false;
-    // Start is called before the first frame update
-    void Start()
+
+    public int numberCardRevealed = 0;
+
+    public void InitGame(int nOP)
     {
+        numberOfPlayers = nOP;
         deckPileCanInteract = false;
         InitPlayer();
         currentPlayer = players[0];
@@ -57,55 +60,56 @@ public class MyGame : MonoBehaviour
         discardPile = new List<Card>();
         MoveThePileCardToTheDiscardPile();
         PlayerRevealCardsAtStart();
-        playerTurnText.SetText("Player " + (currentPlayerIndex % players.Count + 1) + "'s turn \n Choose two cards to reveal");
+        playerTurnText.SetText("Player " + (currentPlayerIndex + 1) + "'s turn \n Choose two cards to reveal");
         StartCoroutine(playerTurn.ActivatePlayerTurn());
-
     }
 
     // Update is called once per frame
     void Update()
     {
-
-        deckValue.text = deckPile.Count.ToString() + " cartes";
-        if(deckPile.Count == 0)
+        if (numberOfPlayers != 0)
         {
-            deckPile = discardPile;
-            discardPile = new List<Card>();
-            MoveThePileCardToTheDiscardPile();
-            ShuffleDeck();
-        }
-       /* if (actionWasMade)
-        {
-            timeSinceLastAction = 0f;
-            actionWasMade = false;
-        }
-        else
-        {
-            timeSinceLastAction += Time.deltaTime;
-
-            if (timeSinceLastAction >= 10f)
+            deckValue.text = deckPile.Count.ToString() + " cartes";
+            if(deckPile.Count == 0)
             {
-                actionWasMade = true;
-                if(deckPileCanInteract == true)
-                {
-                    StartCoroutine(StartDisplayHelpAfterDelay(null, discardButton.image));
-                    StartCoroutine(StartDisplayHelpAfterDelay(null, DeckButton.image));
-                }
-                else if(deckPileInteracted == true)
-                {
-                    StartCoroutine(StartDisplayHelpAfterDelay(playerCards.cardImages));
-                    StartCoroutine(StartDisplayHelpAfterDelay(null, discardButton.image)); ;
-                }
-                else
-                {
-                    StartCoroutine(StartDisplayHelpAfterDelay(playerCards.cardImages));
-                }
+                deckPile = discardPile;
+                discardPile = new List<Card>();
+                MoveThePileCardToTheDiscardPile();
+                ShuffleDeck();
             }
-        }*/
+           /* if (actionWasMade)
+            {
+                timeSinceLastAction = 0f;
+                actionWasMade = false;
+            }
+            else
+            {
+                timeSinceLastAction += Time.deltaTime;
+
+                if (timeSinceLastAction >= 10f)
+                {
+                    actionWasMade = true;
+                    if(deckPileCanInteract == true)
+                    {
+                        StartCoroutine(StartDisplayHelpAfterDelay(null, discardButton.image));
+                        StartCoroutine(StartDisplayHelpAfterDelay(null, DeckButton.image));
+                    }
+                    else if(deckPileInteracted == true)
+                    {
+                        StartCoroutine(StartDisplayHelpAfterDelay(playerCards.cardImages));
+                        StartCoroutine(StartDisplayHelpAfterDelay(null, discardButton.image)); ;
+                    }
+                    else
+                    {
+                        StartCoroutine(StartDisplayHelpAfterDelay(playerCards.cardImages));
+                    }
+                }
+            }*/
+        }
     }
     void InitPlayer()
     {
-        for (int i = 0; i < numberOfPlayer; i++)
+        for (int i = 0; i < numberOfPlayers; i++)
         {
             players.Add(new());
         }
@@ -123,13 +127,11 @@ public class MyGame : MonoBehaviour
         }
 
     }
-
     public void PlayerRevealCardsAtStart()
     {
-
         currentPlayer = players[currentPlayerIndex  % players.Count];
-        playerCards = generatePlayers.GetPlayerCards(currentPlayerIndex % players.Count);
-        playerCardsManager = generatePlayers.GetPlayerCardManagers(currentPlayerIndex % players.Count);
+        playerCards = generatePlayers.GetPlayerCards(currentPlayerIndex );
+        playerCardsManager = generatePlayers.GetPlayerCardManagers(currentPlayerIndex);
 
         PlayerChooseCardDelegate playerChooseCard = RevealCardAtStart;
         ActivatePlayerCard(playerChooseCard);
@@ -141,27 +143,35 @@ public class MyGame : MonoBehaviour
         playerCards.SetCardImage(numberCard, currentPlayer.hand[numberCard-1].value);
         currentPlayer.hand[numberCard - 1].cardRevealed = true;
         NextPlayerAtStart();
-        IsGameOver();
     }
     void NextPlayerAtStart()
     {
+        if (numberCardRevealed == 0)
+        {
+            numberCardRevealed++;
+        }
+        else
+        {
+            numberCardRevealed = 0;
+            currentPlayerIndex++;
+        }
         DisableInteractCard();
 
-        currentPlayerIndex = (currentPlayerIndex + 1) ;
-        if(currentPlayerIndex < players.Count*2)
+        if (currentPlayerIndex < players.Count)
         {
             PlayerRevealCardsAtStart();
-            playerTurnText.SetText("Player " + (currentPlayerIndex % players.Count + 1) + "'s turn \n Choose two cards to reveal");
+            playerTurnText.SetText("Player " + (currentPlayerIndex + 1) + "'s turn \n Choose two cards to reveal");
         }
-        else {
+        else
+        {
             currentPlayerIndex = 0;
             deckPileCanInteract = true;
-            playerTurnText.SetText("Player " + (currentPlayerIndex % players.Count + 1) + "'s turn ");
+            playerTurnText.SetText("Player " + (currentPlayerIndex + 1) + "'s turn ");
         }
 
+        StartCoroutine(playerTurn.ActivatePlayerTurn());    
+        
         actionWasMade = false;
-
-        StartCoroutine(playerTurn.ActivatePlayerTurn());
     }
     public void DrawDiscardPile()
     {
@@ -180,7 +190,7 @@ public class MyGame : MonoBehaviour
 
     public void DrawDeckPile()
     {
-        currentPlayer = players[currentPlayerIndex % players.Count];
+        currentPlayer = players[currentPlayerIndex];
         if (deckPile.Count > 0 && deckPileCanInteract && currentPlayer.hand.Where(card => card.cardRevealed).Count() != 12)
         {
             deckPileCanInteract = false;
@@ -241,7 +251,7 @@ public class MyGame : MonoBehaviour
         actionWasMade = true;
         currentPlayer.drawFromDrawPile = true;
         CheckIfCardIsAlreadyRevealed(numberCard);
-        if (currentPlayer.hand.Where(card=>card.cardRevealed).Count() > 1 )
+        if (currentPlayer.hand.Where(card=>card.cardRevealed).Count() == 12 )
         {
             isGameOver = true;
         }
@@ -496,5 +506,43 @@ public class MyGame : MonoBehaviour
             StartCoroutine(ScaleImageEffect(image));
         }
         
+    }
+
+    public void ResetGame()
+    {
+        DeckButton = null;
+        deckPile=null;
+        deckValue=null;
+        deckPileCanInteract =false;
+        discardPile =null;
+        discardButton=null;
+        discardPileManager=null;
+        playerCards=null;
+        playerCardsManager=null;
+        players =null;
+        currentPlayer=null;
+        hand=null;
+        numberOfPlayers=0;
+        currentPlayerIndex =0;
+        points=0;
+        isGameOver =false;
+        playerLeftToPlay=0;
+
+        generatePlayers = null;
+
+        winnerPanel = null;    
+        playerTurn = null;
+        playerTurnText = null;
+        timeSinceLastAction = 0f;
+        deckPileInteracted = false;
+        actionWasMade = false;
+
+        numberCardRevealed = 0;
+    }
+    public void ReplayGame()
+    {
+        var nOP = numberOfPlayers;
+        ResetGame();
+        InitGame(nOP);
     }
 }

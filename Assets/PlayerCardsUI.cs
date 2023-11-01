@@ -10,9 +10,21 @@ public class PlayerCards : MonoBehaviour
     public List<Card> cardsValue ;
     public int numberPlayer;
     public TextMeshProUGUI playerName;
+    public Image logoProfile;
     // Start is called before the first frame update
     void Start()
     {
+        Sprite[] sprites = Resources.LoadAll<Sprite>("LogoProfile");
+
+        if (sprites.Length > 0)
+        {
+            Sprite randomSprite = sprites[Random.Range(0, sprites.Length)];
+
+            if (logoProfile != null)
+            {
+                logoProfile.sprite = randomSprite;
+            }
+        }
         for (int i = 0; i < cardImages.Length; i++)
         {
             cardImages[i].sprite = SetBackCardImage();

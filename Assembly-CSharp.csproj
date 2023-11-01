@@ -65,9 +65,11 @@
     <Compile Include="Assets\GeneratePlayers.cs" />
     <Compile Include="Assets\DiscardPileManager.cs" />
     <Compile Include="Assets\PlayerCardsUI.cs" />
+    <Compile Include="Assets\Helper\CardPositionHelper.cs" />
     <Compile Include="Assets\PlayerTurn\PlayerTurnText.cs" />
     <Compile Include="Assets\PlayerTurn\PlayerTurn.cs" />
     <Compile Include="Assets\card.cs" />
+    <Compile Include="Assets\MenuStartPanel.cs" />
     <Compile Include="Assets\MyGame.cs" />
     <Compile Include="Assets\AnimationBehavior.cs" />
   </ItemGroup>
