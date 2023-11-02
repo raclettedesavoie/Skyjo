@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8402058290175921821}
   - component: {fileID: 4735360718856072532}
   m_Layer: 0
-  m_Name: ButtonPiocheText
+  m_Name: PlayerLogo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -619,7 +619,7 @@ GameObject:
   - component: {fileID: 1377127109692161789}
   - component: {fileID: 6358925360739459073}
   m_Layer: 0
-  m_Name: ButtonPiochePanel
+  m_Name: PlayerLogo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class WinnerPanel : MonoBehaviour
 {
     public MyGame myGame;
-    public MenuStartPanel menuStartPanel;
+    public MenuPanelLobbyCreation menuStartPanel;
     public GeneratePlayers generatePlayers;
     void Start()
     {

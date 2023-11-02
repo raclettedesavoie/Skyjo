@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using TMPro;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Services.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -46,6 +47,8 @@ public class MyGame : MonoBehaviour
     public bool actionWasMade = false;
 
     public int numberCardRevealed = 0;
+
+    public static ServicesInitializationState State;
 
     public void InitGame(int nOP)
     {
