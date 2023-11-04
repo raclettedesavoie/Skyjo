@@ -34,9 +34,9 @@ public class MenuListLobby : MonoBehaviour
 
     private void UpdateLobbyList(List<Lobby> lobbyList)
     {
-        foreach (LobbyInfo lobby in  lobbiesInfo)
+        foreach (LobbyInfo lobby in lobbiesInfo)
         {
-            if(lobby.gameObject != null)
+            if (lobby.gameObject != null)
             {
                 Destroy(lobby.gameObject);
             }

@@ -13,8 +13,6 @@ public class LobbyInfo : MonoBehaviour
 
     public TextMeshProUGUI lobbyNumberOfPlayer;
 
-    public Button joinButton;
-
     public CloudService cloudService;
 
     public GameObject menuListLobby;
@@ -22,12 +20,13 @@ public class LobbyInfo : MonoBehaviour
 
     public void AwakeFunction()
     {
-        if(lobby != null)
+        if (lobby != null)
         {
-            GetComponentInChildren<Button>().onClick.AddListener(() => {
+            GetComponentInChildren<Button>().onClick.AddListener(() =>
+            {
                 menuListLobby.SetActive(false);
                 menuPanelLobby.SetActive(true);
-                cloudService.JoinLobbyByName(lobby,"Player"+(lobby.MaxPlayers - lobby.AvailableSlots +1),SpriteRandomHelper.GetRandomSprite().name);
+                cloudService.JoinLobbyByName(lobby, "Player" + (lobby.MaxPlayers - lobby.AvailableSlots + 1), UnityEngine.Random.Range(0, SpriteRandomHelper.sprites.Length).ToString());
             });
         }
     }
@@ -35,7 +34,7 @@ public class LobbyInfo : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(lobby != null)
+        if (lobby != null)
         {
             lobbyName.text = lobby.Name;
             lobbyNumberOfPlayer.text = lobby.Players.Count + "/" + lobby.MaxPlayers;
@@ -43,7 +42,6 @@ public class LobbyInfo : MonoBehaviour
         else
         {
             lobbyName.text = "No lobbies found ";
-            lobbyName.rectTransform.anchoredPosition = new Vector2(150f, 0f);
         }
     }
 }

@@ -388,6 +388,7 @@
 "Assets/DiscardPileManager.cs"
 "Assets/GeneratePlayers.cs"
 "Assets/Helper/CardPositionHelper.cs"
+"Assets/Helper/InputFieldInteractionHelper.cs"
 "Assets/Helper/SpriteRandomHelper.cs"
 "Assets/Lobby/LobbyInfo.cs"
 "Assets/Lobby/MenuListLobby.cs"

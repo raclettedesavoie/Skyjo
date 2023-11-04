@@ -5,6 +5,7 @@ ScriptsOnlyBuild:
     - CloudService
     - DiscardPileManager
     - GeneratePlayers
+    - InputFieldInteractionHelper
     - LobbyInfo
     - MenuListLobby
     - MenuPanelLobby
@@ -49,6 +50,7 @@ ScriptsOnlyBuild:
     - TMPro.TMP_StyleSheet
     Unity.TextMeshPro.dll:
     - TMPro.TMP_FontAsset
+    - TMPro.TMP_InputField
     - TMPro.TMP_Settings
     - TMPro.TMP_SpriteAsset
     - TMPro.TMP_StyleSheet
@@ -75,6 +77,8 @@ ScriptsOnlyBuild:
     - UnityEngine.UI.GridLayoutGroup
     - UnityEngine.UI.HorizontalLayoutGroup
     - UnityEngine.UI.Image
+    - UnityEngine.UI.LayoutElement
+    - UnityEngine.UI.RectMask2D
     - UnityEngine.UI.VerticalLayoutGroup
   serializedClasses:
     Unity.TextMeshPro:
@@ -87,6 +91,11 @@ ScriptsOnlyBuild:
     - TMPro.TMP_GlyphAdjustmentRecord
     - TMPro.TMP_GlyphPairAdjustmentRecord
     - TMPro.TMP_GlyphValueRecord
+    - TMPro.TMP_InputField/OnChangeEvent
+    - TMPro.TMP_InputField/SelectionEvent
+    - TMPro.TMP_InputField/SubmitEvent
+    - TMPro.TMP_InputField/TextSelectionEvent
+    - TMPro.TMP_InputField/TouchScreenKeyboardEvent
     - TMPro.TMP_Sprite
     - TMPro.TMP_SpriteCharacter
     - TMPro.TMP_SpriteGlyph
@@ -175,6 +184,9 @@ ScriptsOnlyBuild:
     fullTypeName: MenuListLobby
     methodName: CreateLobby
   - assembly: Assembly-CSharp
+    fullTypeName: MenuPanelLobbyCreation
+    methodName: LeaveCreateLobby
+  - assembly: Assembly-CSharp
     fullTypeName: WinnerPanel
     methodName: Leave
   sceneClasses:
@@ -210,61 +222,69 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 1590}
     - Class: 114
-      Script: {instanceID: 1660}
+      Script: {instanceID: 1592}
     - Class: 114
-      Script: {instanceID: 2496}
+      Script: {instanceID: 1662}
     - Class: 114
-      Script: {instanceID: 3124}
+      Script: {instanceID: 1706}
     - Class: 114
-      Script: {instanceID: 3438}
+      Script: {instanceID: 1838}
     - Class: 114
-      Script: {instanceID: 3612}
+      Script: {instanceID: 2544}
     - Class: 114
-      Script: {instanceID: 3916}
+      Script: {instanceID: 3018}
     - Class: 114
-      Script: {instanceID: 3990}
+      Script: {instanceID: 3196}
     - Class: 114
-      Script: {instanceID: 5108}
+      Script: {instanceID: 3518}
     - Class: 114
-      Script: {instanceID: 5436}
+      Script: {instanceID: 3698}
     - Class: 114
-      Script: {instanceID: 5804}
+      Script: {instanceID: 4022}
     - Class: 114
-      Script: {instanceID: 5834}
+      Script: {instanceID: 4058}
     - Class: 114
-      Script: {instanceID: 6420}
+      Script: {instanceID: 4100}
     - Class: 114
-      Script: {instanceID: 6844}
+      Script: {instanceID: 5284}
     - Class: 114
-      Script: {instanceID: 6946}
+      Script: {instanceID: 5598}
     - Class: 114
-      Script: {instanceID: 7246}
+      Script: {instanceID: 5626}
     - Class: 114
-      Script: {instanceID: 7818}
+      Script: {instanceID: 5890}
     - Class: 114
-      Script: {instanceID: 8066}
+      Script: {instanceID: 6026}
     - Class: 114
-      Script: {instanceID: 8578}
+      Script: {instanceID: 6056}
     - Class: 114
-      Script: {instanceID: 8816}
+      Script: {instanceID: 6658}
     - Class: 114
-      Script: {instanceID: 9220}
+      Script: {instanceID: 6906}
     - Class: 114
-      Script: {instanceID: 9266}
+      Script: {instanceID: 7224}
     - Class: 114
-      Script: {instanceID: 10280}
+      Script: {instanceID: 7540}
     - Class: 114
-      Script: {instanceID: 10868}
+      Script: {instanceID: 8130}
     - Class: 114
-      Script: {instanceID: 10882}
+      Script: {instanceID: 8398}
     - Class: 114
-      Script: {instanceID: 28678}
+      Script: {instanceID: 8938}
     - Class: 114
-      Script: {instanceID: 28686}
+      Script: {instanceID: 9184}
     - Class: 114
-      Script: {instanceID: 46060}
+      Script: {instanceID: 9610}
     - Class: 114
-      Script: {instanceID: 46554}
+      Script: {instanceID: 9656}
+    - Class: 114
+      Script: {instanceID: 10708}
+    - Class: 114
+      Script: {instanceID: 11332}
+    - Class: 114
+      Script: {instanceID: 11346}
+    - Class: 114
+      Script: {instanceID: 35742}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -282,6 +302,12 @@ ScriptsOnlyBuild:
     - Class: 224
       Script: {instanceID: 0}
   scriptHashData:
+  - hash:
+      serializedVersion: 2
+      Hash: 41ac98c9880a6f3758ca69dbaa1e7777
+    assemblyName: UnityEngine.UI
+    namespaceName: UnityEngine.UI
+    className: HorizontalLayoutGroup
   - hash:
       serializedVersion: 2
       Hash: 0249933f35dcc970b31eaae0159aebf9
@@ -306,6 +332,12 @@ ScriptsOnlyBuild:
     assemblyName: UnityEngine.UI
     namespaceName: UnityEngine.UI
     className: Image
+  - hash:
+      serializedVersion: 2
+      Hash: 2288a82d396997a869638ce92c174d95
+    assemblyName: Assembly-CSharp
+    namespaceName: 
+    className: MenuListLobby
   - hash:
       serializedVersion: 2
       Hash: 74007bf515c4306e564934b368232bdb
@@ -420,6 +452,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.2D.Animation.Runtime
     namespaceName: UnityEngine.U2D.Animation
     className: SkeletonAsset
+  - hash:
+      serializedVersion: 2
+      Hash: aeb31cc6faf23e1d300c6e9f05c16871
+    assemblyName: Assembly-CSharp
+    namespaceName: 
+    className: LobbyInfo
   - hash:
       serializedVersion: 2
       Hash: 751e5bae2a317288c2ab58d66687092b
@@ -560,6 +598,12 @@ ScriptsOnlyBuild:
     className: PlayerCards
   - hash:
       serializedVersion: 2
+      Hash: 73770a2744519958ea7a47899ec0b928
+    assemblyName: Assembly-CSharp
+    namespaceName: 
+    className: MenuPanelLobby
+  - hash:
+      serializedVersion: 2
       Hash: 751e5bae2a317288c2ab58d66687092b
     assemblyName: Unity.VisualScripting.Core
     namespaceName: Unity.VisualScripting
@@ -692,7 +736,7 @@ ScriptsOnlyBuild:
     className: SpriteShapeGeometryCache
   - hash:
       serializedVersion: 2
-      Hash: 5e09f8c6ec6074d80013c2c6f8be8b5d
+      Hash: 9ae5813c63e7bc2441cc0327f2c7589b
     assemblyName: Assembly-CSharp
     namespaceName: 
     className: MenuPanelLobbyCreation
@@ -762,6 +806,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.TextMeshPro
     namespaceName: TMPro
     className: TMP_SubMeshUI
+  - hash:
+      serializedVersion: 2
+      Hash: 519c4382539608ac379ead88c403cbe8
+    assemblyName: Assembly-CSharp
+    namespaceName: 
+    className: PlayerInfo
   - hash:
       serializedVersion: 2
       Hash: a2f3f73c4406dfc8cfb0f0d0da927a30
@@ -894,12 +944,6 @@ ScriptsOnlyBuild:
     assemblyName: UnityEngine.UI
     namespaceName: UnityEngine.UI
     className: Slider
-  - hash:
-      serializedVersion: 2
-      Hash: 41ac98c9880a6f3758ca69dbaa1e7777
-    assemblyName: UnityEngine.UI
-    namespaceName: UnityEngine.UI
-    className: HorizontalLayoutGroup
   - hash:
       serializedVersion: 2
       Hash: 751e5bae2a317288c2ab58d66687092b
@@ -1358,28 +1402,10 @@ ScriptsOnlyBuild:
     className: UnityOnSliderValueChangedMessageListener
   - hash:
       serializedVersion: 2
-      Hash: 2288a82d396997a869638ce92c174d95
+      Hash: 059670f73a4a34f121e87e923f902b3d
     assemblyName: Assembly-CSharp
     namespaceName: 
-    className: MenuListLobby
-  - hash:
-      serializedVersion: 2
-      Hash: 6669a98488c2db993d43f1db9e0dcd5b
-    assemblyName: Assembly-CSharp
-    namespaceName: 
-    className: LobbyInfo
-  - hash:
-      serializedVersion: 2
-      Hash: 73770a2744519958ea7a47899ec0b928
-    assemblyName: Assembly-CSharp
-    namespaceName: 
-    className: MenuPanelLobby
-  - hash:
-      serializedVersion: 2
-      Hash: 519c4382539608ac379ead88c403cbe8
-    assemblyName: Assembly-CSharp
-    namespaceName: 
-    className: PlayerInfo
+    className: InputFieldInteractionHelper
   platform: 19
   scenePathNames:
   - Assets/Scenes/SampleScene.unity

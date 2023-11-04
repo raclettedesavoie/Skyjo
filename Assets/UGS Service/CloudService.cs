@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TMPro;
 using Unity.Services.Authentication;
 using Unity.Services.CloudCode;
 using Unity.Services.Core;
@@ -34,10 +35,6 @@ public class CloudService : MonoBehaviour
     public event EventHandler<LobbyEventArgs> OnJoinedLobby;
     public event EventHandler<LobbyEventArgs> OnJoinedLobbyUpdate;
     public event EventHandler<LobbyEventArgs> OnKickedFromLobby;
-    public event EventHandler<LobbyEventArgs> OnLobbyGameModeChanged;
-
-    private string playerName;
-    private string playerLogo;
 
     public class LobbyEventArgs : EventArgs
     {
@@ -71,7 +68,7 @@ public class CloudService : MonoBehaviour
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
     }
 
-    public async void CreateLobby(bool isPrivate, string playerName,int numberOfPlayerMax, string logoPlayerName)
+    public async void CreateLobby(bool isPrivate,string lobbyName, string playerName,int numberOfPlayerMax, string logoPlayerName)
     {
         try
         {
@@ -85,7 +82,7 @@ public class CloudService : MonoBehaviour
                     }*/
                 };
 
-                Lobby lobby = await LobbyService.Instance.CreateLobbyAsync("test", numberOfPlayerMax, options);
+                Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, numberOfPlayerMax, options);
 
                 Debug.Log("Created lobby " + lobby.Name + " " + lobby.MaxPlayers +" " + lobby.LobbyCode);
 
@@ -329,9 +326,15 @@ public class CloudService : MonoBehaviour
                 }
         };
     }
-    public async void UpdatePlayerName(string playerName)
+    public async void UpdatePlayerData(string playerData)
     {
-        this.playerName = playerName;
+        var playerDataKey = "PlayerName";
+
+        if(playerData == "nextLogo")
+        {
+            playerDataKey = "PlayerLogo";
+            playerData = (int.Parse(joinedLobby.Players.Find(x => x.Id == AuthenticationService.Instance.PlayerId).Data[playerDataKey].Value)+1).ToString();
+        }
 
         if (joinedLobby != null)
         {
@@ -341,9 +344,9 @@ public class CloudService : MonoBehaviour
 
                 options.Data = new Dictionary<string, PlayerDataObject>() {
                     {
-                        "PlayerName", new PlayerDataObject(
-                            visibility: PlayerDataObject.VisibilityOptions.Public,
-                            value: playerName)
+                        playerDataKey, new PlayerDataObject(
+                            visibility: PlayerDataObject.VisibilityOptions.Member,
+                            value: playerData)
                     }
                 };
 
@@ -363,38 +366,6 @@ public class CloudService : MonoBehaviour
     public Lobby GetJoinedLobby()
     {
         return joinedLobby;
-    }
-
-    public async void UpdatePlayerLogo(string playerLogo)
-    {
-        this.playerLogo = playerLogo;
-
-        if (joinedLobby != null)
-        {
-            try
-            {
-                UpdatePlayerOptions options = new UpdatePlayerOptions();
-
-                options.Data = new Dictionary<string, PlayerDataObject>() {
-                    {
-                        "PlayerLogo", new PlayerDataObject(
-                            visibility: PlayerDataObject.VisibilityOptions.Public,
-                            value: playerName)
-                    }
-                };
-
-                string playerId = AuthenticationService.Instance.PlayerId;
-
-                Lobby lobby = await LobbyService.Instance.UpdatePlayerAsync(joinedLobby.Id, playerId, options);
-                joinedLobby = lobby;
-
-                OnJoinedLobbyUpdate?.Invoke(this, new LobbyEventArgs { lobby = joinedLobby });
-            }
-            catch (LobbyServiceException e)
-            {
-                Debug.Log(e);
-            }
-        }
     }
 
     public async void KickPlayer(string playerId)

@@ -11,10 +11,15 @@ public class MenuPanelLobbyCreation : MonoBehaviour
     public Button nextBtn;
     public GeneratePlayers generatePlayers;
     public TextMeshProUGUI numberOfPlayerTxt;
-    public int numberOfPlayers=4;
+    public int numberOfPlayers = 4;
+
     public GameObject MenuPanelLobby;
+    public GameObject MenuPanelListLobby;
 
     public CloudService cloudService;
+
+    public TextMeshProUGUI lobbyName;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -36,12 +41,17 @@ public class MenuPanelLobbyCreation : MonoBehaviour
         }
         if (numberOfPlayers == 3)
         {
-            previousBtn.interactable=false;
+            previousBtn.interactable = false;
         }
         else
         {
-            previousBtn.interactable=true;
+            previousBtn.interactable = true;
         }
+    }
+
+    public void updatePlayerName(string updatedlobbyName)
+    {
+        lobbyName.text = updatedlobbyName;
     }
     public void NextBtnPressed()
     {
@@ -55,13 +65,17 @@ public class MenuPanelLobbyCreation : MonoBehaviour
         numberOfPlayerTxt.text = numberOfPlayers.ToString();
     }
 
-
-
     public void CreateLobby()
     {
-        var randomSprite = SpriteRandomHelper.GetRandomSprite();
-        cloudService.CreateLobby(false, "Player 1", numberOfPlayers, randomSprite.name);
+        var lobbyNameLocal = lobbyName.text.Length== 1? "lobby" + UnityEngine.Random.Range(1000, 10000) : lobbyName.text;
+        cloudService.CreateLobby(false, lobbyNameLocal, "Player 1", numberOfPlayers, UnityEngine.Random.Range(0, SpriteRandomHelper.sprites.Length).ToString());
         gameObject.SetActive(false);
         MenuPanelLobby.SetActive(true);
+    }
+
+    public void LeaveCreateLobby()
+    {
+        gameObject.SetActive(false);
+        MenuPanelListLobby.SetActive(true);
     }
 }

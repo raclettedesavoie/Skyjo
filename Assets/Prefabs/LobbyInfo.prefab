@@ -227,6 +227,8 @@ MonoBehaviour:
   lobbyNumberOfPlayer: {fileID: 4572942083889473595}
   joinButton: {fileID: 4872304368739618656}
   cloudService: {fileID: 0}
+  menuListLobby: {fileID: 0}
+  menuPanelLobby: {fileID: 0}
 --- !u!1 &5964237495642489442
 GameObject:
   m_ObjectHideFlags: 0
@@ -261,8 +263,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -44.739, y: 8.7444}
-  m_SizeDelta: {x: 594.6441, y: 69.8271}
+  m_AnchoredPosition: {x: 4.0398, y: 1.6493}
+  m_SizeDelta: {x: 972.4585, y: 183.3488}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6463451804712834925
 CanvasRenderer:
@@ -327,9 +329,9 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_fontStyle: 1
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -357,7 +359,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: -3.547577, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -397,7 +399,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 152, y: 8.7444}
+  m_AnchoredPosition: {x: 294, y: 8.7444}
   m_SizeDelta: {x: 105.6344, y: 52.3384}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6866328060269736307
